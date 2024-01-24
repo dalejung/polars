@@ -98,35 +98,35 @@ impl PyDataFrame {
         Ok(df.into())
     }
 
-    #[cfg(feature = "ipc_streaming")]
-    fn __getstate__(&self, py: Python) -> PyResult<PyObject> {
-        // Used in pickle/pickling
-        let mut buf: Vec<u8> = vec![];
-        IpcStreamWriter::new(&mut buf)
-            .with_pl_flavor(true)
-            .finish(&mut self.df.clone())
-            .expect("ipc writer");
-        Ok(PyBytes::new(py, &buf).to_object(py))
-    }
+    // #[cfg(feature = "ipc_streaming")]
+    // fn __getstate__(&self, py: Python) -> PyResult<PyObject> {
+    //     // Used in pickle/pickling
+    //     let mut buf: Vec<u8> = vec![];
+    //     IpcStreamWriter::new(&mut buf)
+    //         .with_pl_flavor(true)
+    //         .finish(&mut self.df.clone())
+    //         .expect("ipc writer");
+    //     Ok(PyBytes::new(py, &buf).to_object(py))
+    // }
 
-    #[cfg(feature = "ipc_streaming")]
-    fn __setstate__(&mut self, py: Python, state: PyObject) -> PyResult<()> {
-        // Used in pickle/pickling
-        match state.extract::<&PyBytes>(py) {
-            Ok(s) => {
-                let c = Cursor::new(s.as_bytes());
-                let reader = IpcStreamReader::new(c);
+    // #[cfg(feature = "ipc_streaming")]
+    // fn __setstate__(&mut self, py: Python, state: PyObject) -> PyResult<()> {
+    //     // Used in pickle/pickling
+    //     match state.extract::<&PyBytes>(py) {
+    //         Ok(s) => {
+    //             let c = Cursor::new(s.as_bytes());
+    //             let reader = IpcStreamReader::new(c);
 
-                reader
-                    .finish()
-                    .map(|df| {
-                        self.df = df;
-                    })
-                    .map_err(|e| PyPolarsErr::from(e).into())
-            },
-            Err(e) => Err(e),
-        }
-    }
+    //             reader
+    //                 .finish()
+    //                 .map(|df| {
+    //                     self.df = df;
+    //                 })
+    //                 .map_err(|e| PyPolarsErr::from(e).into())
+    //         },
+    //         Err(e) => Err(e),
+    //     }
+    // }
 }
 
 impl From<DataFrame> for PyDataFrame {
